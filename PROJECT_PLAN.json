@@ -1,0 +1,448 @@
+{
+  "meta": {
+    "version": "1.0.0",
+    "created": "2026-01-25",
+    "lastUpdated": "2026-01-25",
+    "planType": "feature",
+    "project": "SBA Scout TUI",
+    "description": "Fantasy baseball scouting TUI application for the SBA (Strat-o-Matic Baseball Association) league",
+    "totalEstimatedHours": 40,
+    "totalTasks": 18,
+    "completedTasks": 7
+  },
+  "categories": {
+    "critical": "Must fix immediately - blocks core functionality",
+    "high": "Required for production-ready app",
+    "medium": "Quality improvements and secondary features",
+    "low": "Polish, nice-to-have features",
+    "feature": "New capabilities and screens"
+  },
+  "tasks": [
+    {
+      "id": "FEAT-001",
+      "name": "Dashboard Screen",
+      "description": "Main dashboard showing roster summary (Majors/Minors/IL counts), sWAR usage, and quick navigation buttons",
+      "category": "feature",
+      "priority": 1,
+      "completed": true,
+      "tested": true,
+      "dependencies": [],
+      "files": [
+        {
+          "path": "src/sba_scout/app.py",
+          "lines": [30, 180],
+          "issue": "DashboardScreen class implementation"
+        }
+      ],
+      "suggestedFix": null,
+      "estimatedHours": 4,
+      "notes": "Completed - shows roster counts and sWAR from settings"
+    },
+    {
+      "id": "FEAT-002",
+      "name": "Roster Screen",
+      "description": "Full roster view with tabbed display (Majors/Minors/IL), separate DataTables for batters and pitchers with ratings and stats",
+      "category": "feature",
+      "priority": 2,
+      "completed": true,
+      "tested": true,
+      "dependencies": ["FEAT-001"],
+      "files": [
+        {
+          "path": "src/sba_scout/screens/roster.py",
+          "lines": [1, 270],
+          "issue": "RosterScreen implementation"
+        }
+      ],
+      "suggestedFix": null,
+      "estimatedHours": 6,
+      "notes": "Completed - batters show vL/vR/Ovr/Defense, pitchers show vL/vR/Ovr/S/R/C endurance"
+    },
+    {
+      "id": "FEAT-003",
+      "name": "Card Data Importer",
+      "description": "Import batter and pitcher card data from BatterCalcs.csv and PitcherCalcs.csv exports, including pre-calculated ratings",
+      "category": "feature",
+      "priority": 1,
+      "completed": true,
+      "tested": true,
+      "dependencies": [],
+      "files": [
+        {
+          "path": "src/sba_scout/api/importer.py",
+          "lines": [1, 400],
+          "issue": "CSV import functions"
+        }
+      ],
+      "suggestedFix": null,
+      "estimatedHours": 4,
+      "notes": "Completed - imports vL/vR/Total ratings directly from spreadsheet"
+    },
+    {
+      "id": "FEAT-004",
+      "name": "API Sync",
+      "description": "Sync players, teams, and transactions from Major Domo league API",
+      "category": "feature",
+      "priority": 2,
+      "completed": true,
+      "tested": true,
+      "dependencies": [],
+      "files": [
+        {
+          "path": "src/sba_scout/api/client.py",
+          "lines": [1, 150],
+          "issue": "API client implementation"
+        },
+        {
+          "path": "src/sba_scout/api/sync.py",
+          "lines": [1, 200],
+          "issue": "Sync logic"
+        }
+      ],
+      "suggestedFix": null,
+      "estimatedHours": 4,
+      "notes": "Completed - syncs from league API on demand"
+    },
+    {
+      "id": "FEAT-005",
+      "name": "Matchup Scout Screen",
+      "description": "Core scouting feature - analyze batter vs pitcher matchups, show expected outcomes based on handedness splits",
+      "category": "feature",
+      "priority": 3,
+      "completed": true,
+      "tested": true,
+      "dependencies": ["FEAT-002", "FEAT-003"],
+      "files": [
+        {
+          "path": "src/sba_scout/screens/matchup.py",
+          "lines": [1, 290],
+          "issue": "Full implementation complete"
+        },
+        {
+          "path": "src/sba_scout/calc/matchup.py",
+          "lines": [1, 130],
+          "issue": "Matchup calculation logic"
+        }
+      ],
+      "suggestedFix": null,
+      "estimatedHours": 8,
+      "notes": "Implemented: team/pitcher selectors, matchup table with rating/tier, sort by rating/name/position, switch hitter logic (uses opposite of pitcher hand)"
+    },
+    {
+      "id": "FEAT-006",
+      "name": "Lineup Builder Screen",
+      "description": "Set batting order and defensive positions, save/load lineup configurations",
+      "category": "feature",
+      "priority": 4,
+      "completed": true,
+      "tested": true,
+      "dependencies": ["FEAT-002"],
+      "files": [
+        {
+          "path": "src/sba_scout/screens/lineup.py",
+          "lines": [1, 450],
+          "issue": "Full implementation complete"
+        }
+      ],
+      "suggestedFix": null,
+      "estimatedHours": 6,
+      "notes": "Implemented: dual-panel UI with available batters and lineup tables, keyboard navigation (a=add, r=remove, k/j=move up/down, p=cycle position), save/load named lineups, position eligibility suggestions"
+    },
+    {
+      "id": "FEAT-007",
+      "name": "Transactions Screen",
+      "description": "View recent transactions, track player movements, manage roster moves",
+      "category": "feature",
+      "priority": 5,
+      "completed": false,
+      "tested": false,
+      "dependencies": ["FEAT-004"],
+      "files": [
+        {
+          "path": "src/sba_scout/app.py",
+          "lines": [234, 249],
+          "issue": "Placeholder TransactionsScreen needs implementation"
+        }
+      ],
+      "suggestedFix": "1. Create src/sba_scout/screens/transactions.py\n2. Show recent league transactions\n3. Filter by team, player, date\n4. Show demotion weeks for minors players\n5. Highlight players who can be promoted",
+      "estimatedHours": 4,
+      "notes": "Transaction model already exists, needs UI"
+    },
+    {
+      "id": "FEAT-008",
+      "name": "Depth Chart Screen (by Position)",
+      "description": "View roster organized by defensive position showing depth at each spot",
+      "category": "feature",
+      "priority": 6,
+      "completed": false,
+      "tested": false,
+      "dependencies": ["FEAT-002"],
+      "files": [],
+      "suggestedFix": "1. Create src/sba_scout/screens/depth_chart.py\n2. Show positions as columns or tabs (C, 1B, 2B, SS, 3B, LF, CF, RF, DH)\n3. List eligible players at each position\n4. Show defensive ratings (range, error, arm)\n5. Highlight primary vs secondary positions",
+      "estimatedHours": 4,
+      "notes": "Different from Roster screen - organized by position rather than roster status"
+    },
+    {
+      "id": "FEAT-009",
+      "name": "Player Detail Modal",
+      "description": "Click on a player row to see full card details, stats, and ratings breakdown",
+      "category": "feature",
+      "priority": 7,
+      "completed": false,
+      "tested": false,
+      "dependencies": ["FEAT-002"],
+      "files": [
+        {
+          "path": "src/sba_scout/screens/roster.py",
+          "lines": [],
+          "issue": "Row selection currently does nothing"
+        }
+      ],
+      "suggestedFix": "1. Create PlayerDetailModal widget\n2. Show full batter card (all vs LHP and vs RHP stats)\n3. Show full pitcher card (all vs LHB and vs RHB stats)\n4. Show fielding details at each position\n5. Show running game stats (stealing, speed)\n6. Display card image if available",
+      "estimatedHours": 4,
+      "notes": "Should work from both Roster and Matchup screens"
+    },
+    {
+      "id": "HIGH-001",
+      "name": "Dynamic Season Configuration",
+      "description": "Remove hardcoded season 13, get current season from config or API",
+      "category": "high",
+      "priority": 8,
+      "completed": true,
+      "tested": true,
+      "dependencies": [],
+      "files": [
+        {
+          "path": "src/sba_scout/app.py",
+          "lines": [116],
+          "issue": "Hardcoded season=13 in dashboard"
+        },
+        {
+          "path": "src/sba_scout/screens/roster.py",
+          "lines": [138],
+          "issue": "Hardcoded season=13 in roster"
+        },
+        {
+          "path": "src/sba_scout/api/client.py",
+          "lines": [32],
+          "issue": "Example uses season=13"
+        }
+      ],
+      "suggestedFix": "1. Add current_season to TeamSettings in config.py\n2. Update .env.example with SBA_SCOUT_TEAM__CURRENT_SEASON=13\n3. Replace all hardcoded 13 with settings.team.current_season\n4. Optionally: fetch current season from league API",
+      "estimatedHours": 1,
+      "notes": "Quick fix but important for multi-season support"
+    },
+    {
+      "id": "MED-001",
+      "name": "Schedule Integration",
+      "description": "Show upcoming games, opponent info, and starting pitchers",
+      "category": "medium",
+      "priority": 9,
+      "completed": false,
+      "tested": false,
+      "dependencies": ["FEAT-004"],
+      "files": [],
+      "suggestedFix": "1. Add schedule endpoint to API client\n2. Create Schedule model in database\n3. Add upcoming games widget to dashboard\n4. Link to Matchup Scout with opponent pre-selected",
+      "estimatedHours": 4,
+      "notes": "Would enhance dashboard and matchup workflow"
+    },
+    {
+      "id": "MED-002",
+      "name": "Rating Recalculation Engine",
+      "description": "Rebuild rating calculation system for matchup analysis (was removed, needs fresh implementation)",
+      "category": "medium",
+      "priority": 10,
+      "completed": false,
+      "tested": false,
+      "dependencies": ["FEAT-005"],
+      "files": [
+        {
+          "path": "src/sba_scout/calc/__init__.py",
+          "lines": [],
+          "issue": "calc module is empty after removing ratings.py and matchup.py"
+        }
+      ],
+      "suggestedFix": "1. Design new calculation approach based on matchup needs\n2. Consider: should matchups combine batter vL + pitcher vRHB?\n3. Implement matchup_score = f(batter_rating, pitcher_rating, handedness)\n4. Add tier system (A/B/C/D/F) for quick reference",
+      "estimatedHours": 4,
+      "notes": "Original calc was removed because roster ratings come pre-calculated from spreadsheet. Matchup calculations need different logic."
+    },
+    {
+      "id": "MED-003",
+      "name": "Keyboard Navigation Enhancement",
+      "description": "Add vim-style navigation, better hotkeys, command palette",
+      "category": "medium",
+      "priority": 11,
+      "completed": false,
+      "tested": false,
+      "dependencies": [],
+      "files": [],
+      "suggestedFix": "1. Add j/k navigation in tables\n2. Add search/filter with / key\n3. Implement command palette (ctrl+p)\n4. Add goto player by name",
+      "estimatedHours": 2,
+      "notes": "TUI apps benefit greatly from keyboard-first design"
+    },
+    {
+      "id": "MED-004",
+      "name": "Auto-Sync on Startup",
+      "description": "Optionally sync data from API when app starts, with configurable interval",
+      "category": "medium",
+      "priority": 12,
+      "completed": false,
+      "tested": false,
+      "dependencies": ["FEAT-004"],
+      "files": [
+        {
+          "path": "src/sba_scout/config.py",
+          "lines": [126, 129],
+          "issue": "refresh_interval setting exists but not implemented"
+        }
+      ],
+      "suggestedFix": "1. Check last_sync timestamp on startup\n2. If stale (> refresh_interval), trigger sync\n3. Show sync status in dashboard\n4. Add background sync timer (optional)",
+      "estimatedHours": 2,
+      "notes": "refresh_interval setting already exists in config"
+    },
+    {
+      "id": "LOW-001",
+      "name": "Theme Support",
+      "description": "Light/dark theme toggle using Textual's theming system",
+      "category": "low",
+      "priority": 13,
+      "completed": false,
+      "tested": false,
+      "dependencies": [],
+      "files": [
+        {
+          "path": "src/sba_scout/config.py",
+          "lines": [129],
+          "issue": "theme setting exists but not implemented"
+        }
+      ],
+      "suggestedFix": "1. Use Textual's built-in theme system\n2. Add theme toggle hotkey (t)\n3. Persist theme preference in config",
+      "estimatedHours": 1,
+      "notes": "theme setting already exists in config"
+    },
+    {
+      "id": "LOW-002",
+      "name": "Export Functionality",
+      "description": "Export lineups, matchup reports, or roster data to various formats",
+      "category": "low",
+      "priority": 14,
+      "completed": false,
+      "tested": false,
+      "dependencies": ["FEAT-005", "FEAT-006"],
+      "files": [],
+      "suggestedFix": "1. Export lineup to clipboard (for pasting into game)\n2. Export matchup report to markdown/text\n3. Export roster to CSV",
+      "estimatedHours": 2,
+      "notes": "Clipboard export would be most immediately useful"
+    },
+    {
+      "id": "LOW-003",
+      "name": "Draft Tools",
+      "description": "Tools for evaluating players during the draft",
+      "category": "low",
+      "priority": 15,
+      "completed": false,
+      "tested": false,
+      "dependencies": ["FEAT-003"],
+      "files": [],
+      "suggestedFix": "1. Player search across all teams\n2. Compare players side-by-side\n3. Track draft queue/watchlist\n4. sWAR value analysis",
+      "estimatedHours": 6,
+      "notes": "Would be valuable during draft season"
+    },
+    {
+      "id": "TEST-001",
+      "name": "Add Unit Tests",
+      "description": "Create test suite for core functionality",
+      "category": "medium",
+      "priority": 16,
+      "completed": false,
+      "tested": false,
+      "dependencies": [],
+      "files": [
+        {
+          "path": "tests/__init__.py",
+          "lines": [],
+          "issue": "Tests directory is empty"
+        }
+      ],
+      "suggestedFix": "1. Test importer with sample CSV data\n2. Test database queries\n3. Test API client with mocked responses\n4. Test config loading",
+      "estimatedHours": 4,
+      "notes": "Focus on data layer tests first"
+    }
+  ],
+  "quickWins": [
+    {
+      "taskId": "HIGH-001",
+      "estimatedMinutes": 30,
+      "impact": "Removes hardcoded season number, enables multi-season support"
+    },
+    {
+      "taskId": "LOW-001",
+      "estimatedMinutes": 30,
+      "impact": "Light theme option for users who prefer it"
+    }
+  ],
+  "productionBlockers": [],
+  "weeklyRoadmap": {
+    "week1": {
+      "theme": "Core Scouting Features",
+      "tasks": ["HIGH-001", "FEAT-005"],
+      "estimatedHours": 9,
+      "description": "Fix hardcoded season, implement Matchup Scout screen"
+    },
+    "week2": {
+      "theme": "Lineup Management",
+      "tasks": ["FEAT-006", "FEAT-009"],
+      "estimatedHours": 10,
+      "description": "Lineup Builder screen and Player Detail modal"
+    },
+    "week3": {
+      "theme": "Secondary Features",
+      "tasks": ["FEAT-007", "FEAT-008", "MED-002"],
+      "estimatedHours": 12,
+      "description": "Transactions, Depth Chart, and matchup calculations"
+    },
+    "week4": {
+      "theme": "Polish and Testing",
+      "tasks": ["MED-003", "MED-004", "TEST-001"],
+      "estimatedHours": 8,
+      "description": "Keyboard navigation, auto-sync, and unit tests"
+    }
+  },
+  "completedHistory": [
+    {
+      "taskId": "FEAT-001",
+      "completedDate": "2026-01-25",
+      "notes": "Dashboard with roster summary and navigation"
+    },
+    {
+      "taskId": "FEAT-002",
+      "completedDate": "2026-01-25",
+      "notes": "Roster screen with batters/pitchers tables, proper ratings from CSV"
+    },
+    {
+      "taskId": "FEAT-003",
+      "completedDate": "2026-01-25",
+      "notes": "CSV importer using pre-calculated vL/vR/Total from spreadsheet"
+    },
+    {
+      "taskId": "FEAT-004",
+      "completedDate": "2026-01-25",
+      "notes": "API sync for players and teams from Major Domo"
+    },
+    {
+      "taskId": "HIGH-001",
+      "completedDate": "2026-01-25",
+      "notes": "Added current_season to TeamSettings config; replaced hardcoded season=13 in app.py and roster.py"
+    },
+    {
+      "taskId": "FEAT-005",
+      "completedDate": "2026-01-25",
+      "notes": "Matchup Scout screen with team/pitcher selection, matchup table showing batter ratings vs pitcher handedness, sorting options, tier grades (A-F)"
+    },
+    {
+      "taskId": "FEAT-006",
+      "completedDate": "2026-01-25",
+      "notes": "Lineup Builder screen with dual-panel UI (available batters + lineup), keyboard controls (a=add, r=remove, k/j=reorder, p=change position), save/load named lineups"
+    }
+  ]
+}

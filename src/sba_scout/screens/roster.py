@@ -135,7 +135,7 @@ class RosterScreen(Screen):
                 roster = await get_my_roster(
                     session,
                     settings.team.team_abbrev,
-                    13,  # TODO: Get current season from config/API
+                    settings.team.current_season,
                 )
 
                 # Calculate sWAR totals

@@ -17,6 +17,9 @@ from textual.widgets import Button, Footer, Header, Label, LoadingIndicator, Sta
 
 from .config import get_settings
 from .db.schema import close_database, get_session, init_database
+from .screens.gameday import GamedayScreen
+from .screens.lineup import LineupScreen
+from .screens.matchup import MatchupScreen
 from .screens.roster import RosterScreen
 
 # Configure logging
@@ -33,6 +36,7 @@ class DashboardScreen(Screen):
     BINDINGS: ClassVar = [
         Binding("r", "switch_screen('roster')", "Roster"),
         Binding("m", "switch_screen('matchup')", "Matchup Scout"),
+        Binding("g", "switch_screen('gameday')", "Gameday"),
         Binding("l", "switch_screen('lineup')", "Lineup Builder"),
         Binding("t", "switch_screen('transactions')", "Transactions"),
         Binding("s", "sync_data", "Sync Data"),
@@ -84,12 +88,12 @@ class DashboardScreen(Screen):
                 yield Label("Quick Actions", classes="section-title")
 
                 with Horizontal(classes="action-buttons"):
+                    yield Button("Gameday [g]", id="btn-gameday", variant="primary")
                     yield Button("Roster [r]", id="btn-roster", variant="primary")
-                    yield Button("Matchup Scout [m]", id="btn-matchup", variant="primary")
 
                 with Horizontal(classes="action-buttons"):
+                    yield Button("Matchup Scout [m]", id="btn-matchup", variant="default")
                     yield Button("Lineup Builder [l]", id="btn-lineup", variant="default")
-                    yield Button("Transactions [t]", id="btn-transactions", variant="default")
 
             # Status bar
             with Horizontal(id="status-bar"):
@@ -113,7 +117,7 @@ class DashboardScreen(Screen):
                 roster = await get_my_roster(
                     session,
                     settings.team.team_abbrev,
-                    13,  # TODO: Get current season from API
+                    settings.team.current_season,
                 )
 
                 majors_count = len(roster.get("majors", []))
@@ -141,6 +145,11 @@ class DashboardScreen(Screen):
             # Show placeholder values on error
             settings = get_settings()
             self.query_one("#majors-count", Label).update(f"--/{settings.team.major_league_slots}")
+
+    @on(Button.Pressed, "#btn-gameday")
+    def on_gameday(self) -> None:
+        """Navigate to gameday screen."""
+        self.app.push_screen("gameday")
 
     @on(Button.Pressed, "#btn-roster")
     def on_roster(self) -> None:
@@ -194,35 +203,7 @@ class DashboardScreen(Screen):
             sync_btn.disabled = False
 
 
-# RosterScreen is imported from screens.roster
-
-
-class MatchupScreen(Screen):
-    """Matchup scouting screen for analyzing batters vs pitchers."""
-
-    BINDINGS: ClassVar = [
-        Binding("escape", "app.pop_screen", "Back"),
-        Binding("q", "app.pop_screen", "Back"),
-    ]
-
-    def compose(self) -> ComposeResult:
-        yield Header()
-        yield Label("Matchup Scout - Coming Soon", id="placeholder")
-        yield Footer()
-
-
-class LineupScreen(Screen):
-    """Lineup builder for setting batting order and positions."""
-
-    BINDINGS: ClassVar = [
-        Binding("escape", "app.pop_screen", "Back"),
-        Binding("q", "app.pop_screen", "Back"),
-    ]
-
-    def compose(self) -> ComposeResult:
-        yield Header()
-        yield Label("Lineup Builder - Coming Soon", id="placeholder")
-        yield Footer()
+# RosterScreen, MatchupScreen, and LineupScreen are imported from screens module
 
 
 class TransactionsScreen(Screen):
@@ -392,12 +373,199 @@ class SBAScoutApp(App):
     DataTable > .datatable--cursor {
         background: $accent;
     }
+
+    /* Matchup Screen Styles */
+    #matchup-container {
+        height: 100%;
+        padding: 1;
+    }
+
+    #matchup-selectors {
+        height: 3;
+        margin-bottom: 1;
+    }
+
+    #matchup-selectors Label {
+        width: auto;
+        padding: 0 1;
+        content-align: center middle;
+    }
+
+    #matchup-selectors Select {
+        width: 1fr;
+        max-width: 40;
+        margin-right: 2;
+    }
+
+    #pitcher-info {
+        height: 2;
+        background: $surface;
+        padding: 0 1;
+        margin-bottom: 1;
+        text-style: bold;
+        color: $warning;
+    }
+
+    #matchup-table-container {
+        height: 1fr;
+    }
+
+    #matchup-table {
+        width: 100%;
+        height: 100%;
+    }
+
+    /* Lineup Builder Screen Styles */
+    #lineup-container {
+        height: 1fr;
+        padding: 1;
+    }
+
+    .lineup-panel {
+        width: 1fr;
+        height: 100%;
+        padding: 0 1;
+        border: solid $primary;
+        margin-right: 1;
+    }
+
+    .lineup-panel:last-of-type {
+        margin-right: 0;
+    }
+
+    .panel-title {
+        text-style: bold;
+        background: $surface;
+        padding: 0 1;
+        margin-bottom: 1;
+    }
+
+    #available-container, #lineup-scroll-container {
+        height: 1fr;
+    }
+
+    #available-table, #lineup-table {
+        width: 100%;
+        height: 100%;
+    }
+
+    .hint-text {
+        color: $text-muted;
+        height: 1;
+        padding: 0 1;
+    }
+
+    #lineup-controls {
+        height: 5;
+        padding: 1;
+        background: $surface;
+        dock: bottom;
+    }
+
+    #lineup-controls Label {
+        width: auto;
+        padding: 0 1;
+        height: 3;
+        content-align: center middle;
+    }
+
+    #lineup-name-input {
+        width: 30;
+        height: 3;
+        margin-right: 1;
+    }
+
+    #lineup-select {
+        width: 25;
+        height: 3;
+        margin-right: 1;
+    }
+
+    #btn-save {
+        width: auto;
+        margin-right: 1;
+    }
+
+    #btn-clear {
+        width: auto;
+    }
+
+    /* Gameday Screen Styles */
+    #gameday-container {
+        height: 1fr;
+        padding: 1;
+    }
+
+    .gameday-panel {
+        height: 100%;
+        padding: 0 1;
+        border: solid $primary;
+    }
+
+    #matchup-panel {
+        width: 3fr;
+        margin-right: 1;
+    }
+
+    #lineup-panel {
+        width: 2fr;
+    }
+
+    #gameday-selectors {
+        height: 3;
+        margin-bottom: 1;
+    }
+
+    #gameday-selectors Label {
+        width: auto;
+        padding: 0 1;
+        content-align: center middle;
+    }
+
+    #gameday-selectors Select {
+        width: 1fr;
+        margin-right: 1;
+    }
+
+    #gameday-selectors #team-select {
+        max-width: 12;
+    }
+
+    #gameday-selectors #pitcher-select {
+        max-width: 30;
+    }
+
+    #matchup-scroll, #lineup-scroll {
+        height: 1fr;
+    }
+
+    #lineup-save-controls {
+        height: 3;
+        margin-bottom: 1;
+    }
+
+    #lineup-save-controls Input {
+        width: 1fr;
+        height: 3;
+        margin-right: 1;
+    }
+
+    #lineup-save-controls Select {
+        width: 1fr;
+        height: 3;
+        margin-right: 1;
+    }
+
+    #lineup-save-controls Button {
+        width: auto;
+    }
     """
 
     SCREENS = {
         "dashboard": DashboardScreen,
         "roster": RosterScreen,
         "matchup": MatchupScreen,
+        "gameday": GamedayScreen,
         "lineup": LineupScreen,
         "transactions": TransactionsScreen,
     }

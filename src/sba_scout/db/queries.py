@@ -463,3 +463,19 @@ async def save_lineup(
         )
         session.add(lineup)
         return lineup
+
+
+async def delete_lineup(
+    session: AsyncSession,
+    name: str,
+) -> bool:
+    """Delete a lineup by name.
+
+    Returns:
+        True if lineup was deleted, False if not found
+    """
+    lineup = await get_lineup_by_name(session, name)
+    if lineup:
+        await session.delete(lineup)
+        return True
+    return False

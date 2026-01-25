@@ -85,6 +85,7 @@ class TeamSettings(BaseModel):
     team_id: int = Field(default=548, description="Your team's ID in the league")
     team_abbrev: str = Field(default="WV", description="Your team's abbreviation")
     team_name: str = Field(default="West Virginia Black Bears", description="Full team name")
+    current_season: int = Field(default=13, description="Current season number")
     swar_cap: float = Field(default=29.5, description="Season sWAR cap for roster")
     minor_league_slots: int = Field(default=5, description="Number of minor league roster slots")
     major_league_slots: int = Field(default=26, description="Number of major league roster slots")

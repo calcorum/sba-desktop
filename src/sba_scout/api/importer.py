@@ -379,4 +379,14 @@ async def import_all_cards(
         logger.warning(f"Pitcher CSV not found: {pitcher_csv}")
         results["pitchers"]["errors"].append(f"File not found: {pitcher_csv}")
 
+    # Rebuild standardized score cache after importing cards
+    total_imported = results["batters"]["imported"] + results["pitchers"]["imported"]
+    if total_imported > 0:
+        from ..calc.score_cache import rebuild_score_cache
+
+        logger.info("Rebuilding standardized score cache after import...")
+        cache_result = await rebuild_score_cache(session)
+        results["score_cache"] = cache_result
+        logger.info(f"Score cache rebuilt: {cache_result}")
+
     return results

@@ -410,6 +410,52 @@ class MatchupCache(Base):
     )
 
 
+class StandardizedScoreCache(Base):
+    """
+    Cached standardized scores for card stats.
+
+    Pre-computes the standardized score (-3 to +3) and weighted score for each
+    stat on each card, based on league averages and standard deviations.
+
+    Invalidated and recalculated when:
+    - Card data is imported/updated
+    - Weight values are changed
+    - League stats change significantly (new cards added)
+    """
+
+    __tablename__ = "standardized_score_cache"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+
+    # Card reference (either batter or pitcher, not both)
+    batter_card_id = Column(Integer, ForeignKey("batter_cards.id"), nullable=True)
+    pitcher_card_id = Column(Integer, ForeignKey("pitcher_cards.id"), nullable=True)
+
+    # Which split this score is for
+    split = Column(String(10), nullable=False)  # "vlhp", "vrhp", "vlhb", "vrhb"
+
+    # Pre-computed total weighted score for this card/split
+    total_score = Column(Float, nullable=False)
+
+    # Individual stat scores (JSON for flexibility)
+    # Format: {"so": {"raw": 15.0, "std": 1, "weighted": 1}, "bb": {...}, ...}
+    stat_scores = Column(JSON, nullable=False)
+
+    # Cache validity
+    computed_at = Column(DateTime, default=datetime.utcnow)
+    weights_hash = Column(String(64), nullable=True)  # Hash of weights used
+    league_stats_hash = Column(String(64), nullable=True)  # Hash of league avg/stdev
+
+    # Relationships
+    batter_card = relationship("BatterCard", foreign_keys=[batter_card_id])
+    pitcher_card = relationship("PitcherCard", foreign_keys=[pitcher_card_id])
+
+    __table_args__ = (
+        UniqueConstraint("batter_card_id", "split", name="uq_batter_score_split"),
+        UniqueConstraint("pitcher_card_id", "split", name="uq_pitcher_score_split"),
+    )
+
+
 class SyncStatus(Base):
     """
     Tracks sync status with the league API.
