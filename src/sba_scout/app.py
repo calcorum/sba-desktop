@@ -21,6 +21,7 @@ from .screens.gameday import GamedayScreen
 from .screens.lineup import LineupScreen
 from .screens.matchup import MatchupScreen
 from .screens.roster import RosterScreen
+from .screens.settings import SettingsScreen
 
 # Configure logging
 logging.basicConfig(
@@ -39,6 +40,7 @@ class DashboardScreen(Screen):
         Binding("g", "switch_screen('gameday')", "Gameday"),
         Binding("l", "switch_screen('lineup')", "Lineup Builder"),
         Binding("t", "switch_screen('transactions')", "Transactions"),
+        Binding("x", "switch_screen('settings')", "Settings"),
         Binding("s", "sync_data", "Sync Data"),
         Binding("q", "app.quit", "Quit"),
     ]
@@ -99,6 +101,7 @@ class DashboardScreen(Screen):
             with Horizontal(id="status-bar"):
                 yield Label("Last sync: Never", id="sync-status")
                 yield Button("Sync Now [s]", id="btn-sync", variant="success")
+                yield Button("Settings [x]", id="btn-settings", variant="default")
 
         yield Footer()
 
@@ -175,6 +178,11 @@ class DashboardScreen(Screen):
     async def on_sync(self) -> None:
         """Sync data from league API."""
         await self.action_sync_data()
+
+    @on(Button.Pressed, "#btn-settings")
+    def on_settings(self) -> None:
+        """Navigate to settings screen."""
+        self.app.push_screen("settings")
 
     async def action_sync_data(self) -> None:
         """Sync data from the league API."""
@@ -559,6 +567,61 @@ class SBAScoutApp(App):
     #lineup-save-controls Button {
         width: auto;
     }
+
+    /* Settings Screen Styles */
+    #settings-container {
+        padding: 1 2;
+    }
+
+    .settings-section {
+        margin-bottom: 2;
+        padding: 1;
+        border: solid $primary;
+    }
+
+    .settings-section .section-title {
+        text-style: bold;
+        margin-bottom: 1;
+    }
+
+    .setting-row {
+        height: 3;
+        margin-bottom: 1;
+    }
+
+    .setting-label {
+        width: 15;
+        content-align: left middle;
+    }
+
+    .setting-row Input {
+        width: 1fr;
+    }
+
+    .setting-row Select {
+        width: 1fr;
+    }
+
+    .setting-row Button {
+        width: auto;
+        margin-left: 1;
+    }
+
+    .info-display {
+        margin-top: 1;
+        padding: 1;
+        background: $surface;
+        height: auto;
+    }
+
+    #settings-buttons {
+        margin-top: 2;
+        height: 3;
+    }
+
+    #settings-buttons Button {
+        margin-right: 1;
+    }
     """
 
     SCREENS = {
@@ -568,6 +631,7 @@ class SBAScoutApp(App):
         "gameday": GamedayScreen,
         "lineup": LineupScreen,
         "transactions": TransactionsScreen,
+        "settings": SettingsScreen,
     }
 
     BINDINGS: ClassVar = [
