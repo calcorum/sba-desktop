@@ -12,9 +12,10 @@ import logging
 from dataclasses import dataclass
 from typing import ClassVar, Optional
 
-from textual.app import ComposeResult
+from textual.app import ComposeResult, on
 from textual.binding import Binding
 from textual.containers import Horizontal, ScrollableContainer, Vertical
+from textual.events import Click
 from textual.screen import Screen
 from textual.widgets import (
     Button,
@@ -91,6 +92,7 @@ class GamedayScreen(Screen):
     lineup_slots: list[LineupSlot] = []
     saved_lineups: list[Lineup] = []
     current_lineup_name: str = ""
+    _last_lineup_row: int | None = None  # Track last selected row for deselect toggle
 
     def compose(self) -> ComposeResult:
         """Compose the gameday layout with side-by-side panels."""
@@ -465,15 +467,17 @@ class GamedayScreen(Screen):
             await self.action_save_lineup()
 
     def on_data_table_row_selected(self, event: DataTable.RowSelected) -> None:
-        """Handle row selection - toggle cursor off if clicking same row."""
+        """Handle row selection - toggle cursor off only if clicking same row twice."""
         table = event.data_table
         if table.id == "lineup-table":
-            # If cursor is "row" type, switch to "none" to hide highlight
-            # User can click again or use arrow keys to restore
-            if table.cursor_type == "row":
+            current_row = event.cursor_row
+            # Only toggle off if clicking the same row that was already selected
+            if table.cursor_type == "row" and current_row == self._last_lineup_row:
                 table.cursor_type = "none"
+                self._last_lineup_row = None
             else:
                 table.cursor_type = "row"
+                self._last_lineup_row = current_row
 
     def on_data_table_row_highlighted(self, event: DataTable.RowHighlighted) -> None:
         """Re-enable cursor when navigating with keys."""
@@ -481,6 +485,14 @@ class GamedayScreen(Screen):
         if table.id == "lineup-table" and table.cursor_type == "none":
             # Re-enable cursor when user navigates
             table.cursor_type = "row"
+
+    @on(Click, "#lineup-table")
+    def on_lineup_table_click(self, event: Click) -> None:
+        """Re-enable cursor when lineup table is clicked while deselected."""
+        lineup_table = self.query_one("#lineup-table", DataTable)
+        if lineup_table.cursor_type == "none":
+            lineup_table.cursor_type = "row"
+            self._last_lineup_row = None
 
     # =========================================================================
     # Actions
